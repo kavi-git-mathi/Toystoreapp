@@ -16,11 +16,19 @@ pipeline {
         
         stage('.NET Restore & Build') {
             steps {
-                echo "🔨 Stage 2: Building .NET application..."
                 sh '''
                     dotnet restore
                     dotnet build --configuration Release
-                    echo "✅ Stage 2: .NET build completed"
+                '''
+            }
+        }
+        
+        stage('.NET Tests') {
+            steps {
+                echo "🧪 Stage 3: Running tests..."
+                sh '''
+                    dotnet test --configuration Release
+                    echo "✅ Stage 3: Tests completed"
                 '''
             }
         }
