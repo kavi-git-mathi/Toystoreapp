@@ -4,6 +4,7 @@ pipeline {
     environment {
         APP_NAME = 'toystoreapp'
         ACR_REGISTRY = 'kavitharc.azurecr.io'
+        SONAR_PROJECT_KEY = 'toystoreapp'
     }
     
     stages {
@@ -25,11 +26,23 @@ pipeline {
         
         stage('.NET Tests') {
             steps {
-                echo "🧪 Stage 3: Running tests..."
                 sh '''
                     dotnet test --configuration Release
-                    echo "✅ Stage 3: Tests completed"
                 '''
+            }
+        }
+        
+        stage('SonarQube Scan') {
+            steps {
+                echo "📊 Stage 4: Running SonarQube scan..."
+                withSonarQubeEnv('sonarqube') {
+                    sh '''
+                        dotnet sonarscanner begin /k:"${SONAR_PROJECT_KEY}"
+                        dotnet build --configuration Release
+                        dotnet sonarscanner end
+                        echo "✅ Stage 4: SonarQube scan completed"
+                    '''
+                }
             }
         }
     }
