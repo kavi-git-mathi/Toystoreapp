@@ -45,11 +45,10 @@ pipeline {
                 dotnet tool install --global dotnet-sonarscanner --version 5.13.0 || true
             '''
             
-            // Using SonarQube credentials from Jenkins
-            withCredentials([usernamePassword(
-                credentialsId: 'Sonarqube-token', // Replace with your credential ID
-                usernameVariable: 'SONAR_USER',
-                passwordVariable: 'SONAR_PASS'
+            // Using SonarQube token from Jenkins (Secret text)
+            withCredentials([string(
+                credentialsId: 'Sonarqube-token',  // Use your credential ID exactly as shown in your screenshot
+                variable: 'SONAR_TOKEN'
             )]) {
                 // Run SonarQube analysis
                 withSonarQubeEnv('sonarqube') {
@@ -57,14 +56,13 @@ pipeline {
                         echo "Starting SonarQube scan..."
                         dotnet sonarscanner begin \
                           /k:"${SONAR_PROJECT_KEY}" \
-                          /d:sonar.host.url="http://localhost:9000" \
-                          /d:sonar.login="${SONAR_USER}" \
-                          /d:sonar.password="${SONAR_PASS}" \
+                          /d:sonar.host.url="${SONAR_HOST_URL}" \
+                          /d:sonar.login="${SONAR_TOKEN}" \
                           /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx"
                         
                         dotnet build --configuration Release
                         
-                        dotnet sonarscanner end /d:sonar.login="${SONAR_USER}" /d:sonar.password="${SONAR_PASS}"
+                        dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
                         
                         echo "✅ SonarQube scan submitted"
                     '''
@@ -89,6 +87,7 @@ pipeline {
         }
     }
 }
+
         
         stage('Trivy Security Scan') {
             steps {
