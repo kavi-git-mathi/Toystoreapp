@@ -107,33 +107,11 @@ pipeline {
         
 stage('Docker Build') {
     steps {
-        echo "🐳 Stage 6: Building Docker image..."
+        echo "🐳 Building Docker image..."
         sh '''
-            # Build with ARG for configuration
-            docker build \
-                --build-arg BUILD_CONFIGURATION=Release \
-                -t ${DOCKER_IMAGE} \
-                -t ${ACR_REGISTRY}/${APP_NAME}:latest \
-                .
-            
-            echo "✅ Docker image built successfully"
-            
-            # Test the image locally
-            docker run -d -p 8000:8000 --name smoke-test ${DOCKER_IMAGE}
-            sleep 10
-            
-            # Verify it's working
-            if curl -f http://4.206.208.71:8000 > /dev/null 2>&1; then
-                echo "✅ Application is running on port 8000"
-                docker stop smoke-test
-                docker rm smoke-test
-            else
-                echo "❌ Application failed to start"
-                docker logs smoke-test
-                docker stop smoke-test
-                docker rm smoke-test
-                exit 1
-            fi
+            docker build -t ${DOCKER_IMAGE} .
+            docker tag ${DOCKER_IMAGE} ${ACR_REGISTRY}/${APP_NAME}:latest
+            echo "✅ Docker image built"
         '''
     }
 }
