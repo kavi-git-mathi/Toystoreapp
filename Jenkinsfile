@@ -33,27 +33,30 @@ pipeline {
             }
         }
         
-        // NEW STAGE: SonarQube Analysis
-       stage('SonarQube Analysis') {
+ stage('SonarQube Analysis') {
     steps {
         echo "📊 Stage 4: Running SonarQube analysis..."
         
         script {
-            // Install SonarScanner for .NET
+            // Install SonarScanner for .NET and add to PATH
             sh '''
                 echo "Installing SonarScanner for .NET..."
+                export PATH="$PATH:$HOME/.dotnet/tools"
                 dotnet tool install --global dotnet-sonarscanner --version 5.13.0 || true
             '''
             
             // Using SonarQube token from Jenkins (Secret text)
             withCredentials([string(
-                credentialsId: 'Sonarqube-token',  // Use your credential ID exactly as shown in your screenshot
+                credentialsId: 'Sonarqube-token',
                 variable: 'SONAR_TOKEN'
             )]) {
                 // Run SonarQube analysis
                 withSonarQubeEnv('sonarqube-local') {
                     sh '''
                         echo "Starting SonarQube scan..."
+                        # Add dotnet tools to PATH
+                        export PATH="$PATH:$HOME/.dotnet/tools"
+                        
                         dotnet sonarscanner begin \
                           /k:"${SONAR_PROJECT_KEY}" \
                           /d:sonar.host.url="${SONAR_HOST_URL}" \
