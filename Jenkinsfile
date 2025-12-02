@@ -42,15 +42,32 @@ pipeline {
             }
         }
         
-        // STAGE 5: Docker Build
         stage('Docker Build') {
             steps {
-                echo "🐳 Stage 5: Building Docker image..."
                 sh '''
                     docker build -t ${DOCKER_IMAGE} .
                     docker tag ${DOCKER_IMAGE} ${ACR_REGISTRY}/${APP_NAME}:latest
-                    echo "✅ Stage 5: Docker image built"
                 '''
+            }
+        }
+        
+        // STAGE 6: Push to ACR
+        stage('Push to ACR') {
+            steps {
+                echo "🚀 Stage 6: Pushing to ACR..."
+                
+                withCredentials([usernamePassword(
+                    credentialsId: 'acr-credentials',
+                    usernameVariable: 'ACR_USER',
+                    passwordVariable: 'ACR_PASS'
+                )]) {
+                    sh '''
+                        docker login ${ACR_REGISTRY} -u $ACR_USER -p $ACR_PASS
+                        docker push ${DOCKER_IMAGE}
+                        docker push ${ACR_REGISTRY}/${APP_NAME}:latest
+                        echo "✅ Stage 6: Images pushed to ACR"
+                    '''
+                }
             }
         }
     }
