@@ -51,7 +51,7 @@ pipeline {
                 variable: 'SONAR_TOKEN'
             )]) {
                 // Run SonarQube analysis
-                withSonarQubeEnv('sonarqube') {
+                withSonarQubeEnv('sonarqube-local') {
                     sh '''
                         echo "Starting SonarQube scan..."
                         dotnet sonarscanner begin \
