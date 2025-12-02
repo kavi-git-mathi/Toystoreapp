@@ -58,3 +58,4 @@ C:\ToyStoreApp\obj\Debug\net8.0\refint\ToyStoreApp.dll
 C:\ToyStoreApp\obj\Debug\net8.0\ToyStoreApp.pdb
 C:\ToyStoreApp\obj\Debug\net8.0\ToyStoreApp.genruntimeconfig.cache
 C:\ToyStoreApp\obj\Debug\net8.0\ref\ToyStoreApp.dll
+C:\ToyStoreApp\obj\Debug\net8.0\ToyStoreApp.sourcelink.json
