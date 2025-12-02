@@ -12,22 +12,34 @@ pipeline {
         
         stage('.NET Build') {
             steps {
-                echo "🔨 Stage 2: Building application..."
                 sh '''
                     dotnet restore
                     dotnet build --configuration Release
-                    echo "✅ Stage 2: .NET build completed"
                 '''
             }
         }
         
-        // STAGE 3: .NET Tests
         stage('.NET Tests') {
             steps {
-                echo "🧪 Stage 3: Running tests..."
                 sh '''
                     dotnet test --configuration Release
-                    echo "✅ Stage 3: Tests completed"
+                '''
+            }
+        }
+        
+        // STAGE 4: Trivy Security Scan
+        stage('Trivy Security Scan') {
+            steps {
+                echo "🛡️ Stage 4: Running security scan..."
+                sh '''
+                    # Install Trivy to temp directory (no sudo needed)
+                    mkdir -p /tmp/trivy-install
+                    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /tmp/trivy-install
+                    
+                    # Run security scan
+                    /tmp/trivy-install/trivy fs --severity HIGH,CRITICAL --exit-code 0 .
+                    
+                    echo "✅ Stage 4: Security scan completed"
                 '''
             }
         }
